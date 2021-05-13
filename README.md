@@ -1,1 +1,1 @@
-# PrometheusGrafana
+# .Net Core Prometheus Grafana application
