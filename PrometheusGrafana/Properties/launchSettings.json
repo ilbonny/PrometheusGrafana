@@ -1,0 +1,31 @@
+{
+    "iisSettings": {
+      "windowsAuthentication": false,
+      "anonymousAuthentication": true,
+      "iisExpress": {
+        "applicationUrl": "http://localhost:8000/",
+        "sslPort": 0
+      }
+    },
+    "profiles": {
+      "IIS Express": {
+        "commandName": "IISExpress",
+        "launchBrowser": true,
+        "launchUrl": "api",
+        "environmentVariables": {
+          "ASPNETCORE_ENVIRONMENT": "Development"
+        }
+      },
+      "PrometheousGrafana": {
+        "commandName": "Project",
+        "launchBrowser": true,
+        "launchUrl": "api",
+        "environmentVariables": {
+          "ASPNETCORE_ENVIRONMENT": "Development",
+          "MongoDb__DatabaseName": "PrometheusDb",
+          "MongoDb__ConnectionString": "mongodb://localhost:27017/PrometheusDb"
+        },
+        "applicationUrl": "https://localhost:8001/"
+      }
+    }
+  }
