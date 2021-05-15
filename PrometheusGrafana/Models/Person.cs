@@ -1,13 +1,16 @@
 using System;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson.Serialization.IdGenerators;
 using Newtonsoft.Json;
 
 namespace PrometheusGrafana.Models
 {
     public class Person
     {
-        public PersonIdentifier Id { get; set; }
+        [BsonId(IdGenerator = typeof(StringObjectIdGenerator))] 
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string Id { get; set; }
 
         [JsonProperty("name")]
         public string Name { get; set; }
@@ -19,14 +22,5 @@ namespace PrometheusGrafana.Models
         public int Age { get; set; }
 
         public DateTimeOffset Timestamp { get; set; }
-    }
-
-    public class PersonIdentifier
-    {
-        public string PersonId { get; set; }
-        public PersonIdentifier(string personId)
-        {
-            PersonId = personId;
-        }
-    }
+    }    
 }

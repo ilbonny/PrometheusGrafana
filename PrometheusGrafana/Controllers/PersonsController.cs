@@ -45,5 +45,12 @@ namespace PrometheusGrafana.Controllers
             await _personGateway.Save(person);
             return Ok();
         }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(string id)
+        {
+            await _personGateway.Delete(id);
+            return Ok();
+        }
     }
 }

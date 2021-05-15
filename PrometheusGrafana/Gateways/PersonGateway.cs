@@ -2,7 +2,6 @@ using System.Threading.Tasks;
 using MongoDB.Driver;
 using LanguageExt;
 using PrometheusGrafana.Models;
-using System;
 
 namespace PrometheusGrafana.Gateways
 {
@@ -11,6 +10,7 @@ namespace PrometheusGrafana.Gateways
         public Task<Option<Person>> Get(string id);
         public Task<Person> Insert(Person person);
         public Task Save(Person person);
+        public Task Delete(string id);
     }
 
     public class PersonGateway : IPersonGateway
@@ -23,9 +23,10 @@ namespace PrometheusGrafana.Gateways
             _collection = mongoDb.Database.GetCollection<Person>(CollectionName);
         }
 
-        public Task<Option<Person>> Get(string id)
+        public async Task<Option<Person>> Get(string id)
         {
-            var person = _collection.Find<Person>(GenerateIdFilterDefinition(ObjectId(id))).FirstOrDefault();
+            var filter = Builders<Person>.Filter.Eq(doc => doc.Id, id);
+            var person = (await _collection.FindAsync<Person>(filter)).FirstOrDefault();
             return person ?? Option<Person>.None;            
         }
 
@@ -37,15 +38,17 @@ namespace PrometheusGrafana.Gateways
 
         public Task Save(Person person)
         {
-            return _collection.ReplaceOneAsync(GenerateIdFilterDefinition(person.Id), person, new ReplaceOptions
+            var filter = Builders<Person>.Filter.Eq(doc => doc.Id, person.Id);
+            return _collection.ReplaceOneAsync(filter, person, new ReplaceOptions
             {
                 IsUpsert = true
             });
         }
 
-        private static FilterDefinition<Person> GenerateIdFilterDefinition(Object id)
+        public Task Delete(string id)
         {
-            return Builders<Person>.Filter.Eq(doc => doc.Id, id);
+            var filter = Builders<Person>.Filter.Eq(doc => doc.Id, id);
+            return _collection.DeleteOneAsync(filter);
         }
     }
 }
