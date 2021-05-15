@@ -8,5 +8,6 @@
     <PackageReference Include="LanguageExt.Core" Version="3.4.15"/>
     <PackageReference Include="MongoDB.Driver" Version="2.12.3"/>
     <PackageReference Include="MongoDB.Driver.Core" Version="2.12.3"/>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1"/>
   </ItemGroup>
 </Project>

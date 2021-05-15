@@ -21,14 +21,15 @@ namespace PrometheusGrafana
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-            ReadConfigAndIoc(services);            
+            ReadConfigAndIoc(services);
         }
 
         private static void ReadConfigAndIoc(IServiceCollection services)
         {
             var config = ConfigurationReader.Read();
             services.AddSingleton<IPersonGateway, PersonGateway>();
-            services.AddSingleton<IMongoDb, MongoDb>();
+            services.AddSingleton<IMongoDb>(x =>
+                new MongoDb(config.MongoConfigurationDb));
         }
     }
 }
