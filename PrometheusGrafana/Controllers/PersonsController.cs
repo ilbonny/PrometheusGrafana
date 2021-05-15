@@ -1,7 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
-using PrometheusGrafana.Gateways;
+using PrometheusGrafana.MongoDb.Gateways;
 using System.Threading.Tasks;
 using PrometheusGrafana.Models;
+using PrometheusGrafana.RabbitMq;
 using System;
 using Microsoft.AspNetCore.Http;
 
@@ -11,10 +12,12 @@ namespace PrometheusGrafana.Controllers
     public class PersonsController : Controller
     {
         private readonly IPersonGateway _personGateway;
+        private readonly IPersonPublisher _personPublisher;
 
-        public PersonsController(IPersonGateway personGateway)
+        public PersonsController(IPersonGateway personGateway, IPersonPublisher personPublisher)
         {
             _personGateway = personGateway;
+            _personPublisher = personPublisher;
         }
 
         [HttpGet("{id}", Name = "GetById")]
@@ -35,6 +38,8 @@ namespace PrometheusGrafana.Controllers
 
             person.Timestamp = DateTime.UtcNow;
             var entity = await _personGateway.Insert(person);
+            _personPublisher.Publish(entity);
+
             return CreatedAtAction(nameof(GetById), new { id = entity.Id }, entity);
         }
 

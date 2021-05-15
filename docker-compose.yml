@@ -2,12 +2,32 @@ version: '3.7'
 services:
   mongodb_container:
     image: 
-        mongo:4.2    
+       mongo:4.2    
+    container_name: 
+      'mongo'
     ports:
       - 27017:27017
     volumes:
       - mongodb_data_container:/data/db
+  
+  rabbitmq:
+     image: 
+       rabbitmq:3-management-alpine
+     container_name: 
+        'rabbitmq'
+     ports:
+       - 5672:5672
+       - 15672:15672
+     volumes:
+       - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
+       - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
 
 volumes:
   mongodb_data_container:
+
+networks:
+  rabbitmq_go_net:
+     driver: bridge
+
+
 

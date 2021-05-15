@@ -6,18 +6,18 @@ using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver;
 using PrometheusGrafana.Configuration;
 
-namespace PrometheusGrafana.Gateways
+namespace PrometheusGrafana.MongoDb
 {
-    public interface IMongoDb
+    public interface IMongoConnDatabase
     {
         IMongoDatabase Database { get; set; }
     }
 
-    public class MongoDb : IMongoDb
+    public class MongoConnDatabase : IMongoConnDatabase
     {
-        public IMongoDatabase Database { get; set; }
+        public MongoDB.Driver.IMongoDatabase Database { get; set; }
 
-        static MongoDb()
+        static MongoConnDatabase()
         {
             var conventionPack = new ConventionPack { new IgnoreExtraElementsConvention(true) };
             ConventionRegistry.Register("IgnoreExtraElements", conventionPack, _ => true);
@@ -25,7 +25,7 @@ namespace PrometheusGrafana.Gateways
             BsonSerializer.RegisterSerializer(typeof(DateTimeOffset), new DateTimeOffsetSerializer(BsonType.Document));
         }
 
-        public MongoDb(MongoConnectionConfiguration config)
+        public MongoConnDatabase(MongoConnectionConfiguration config)
         {
             var url = new MongoUrlBuilder(config.ConnectionString).ToMongoUrl();
             var mongoClient = new MongoClient(url);

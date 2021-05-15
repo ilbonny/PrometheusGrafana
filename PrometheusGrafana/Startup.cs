@@ -2,7 +2,10 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using PrometheusGrafana.Configuration;
-using PrometheusGrafana.Gateways;
+using PrometheusGrafana.Models;
+using PrometheusGrafana.MongoDb;
+using PrometheusGrafana.MongoDb.Gateways;
+using PrometheusGrafana.RabbitMq;
 
 namespace PrometheusGrafana
 {
@@ -28,8 +31,12 @@ namespace PrometheusGrafana
         {
             var config = ConfigurationReader.Read();
             services.AddSingleton<IPersonGateway, PersonGateway>();
-            services.AddSingleton<IMongoDb>(x =>
-                new MongoDb(config.MongoConfigurationDb));
+
+            services.AddSingleton<IMongoConnDatabase>(x =>
+                new MongoConnDatabase(config.MongoConfigurationDb));
+            
+            services.AddSingleton<IRabbitMqPublisher<Person>>(x =>
+                new RabbitMqPublisher<Person>(config.RabbitConfiguration, "Prometheus.Person.Exchange.Added","Prometheus.Person.Queue.Added"));
         }
     }
 }

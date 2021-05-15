@@ -19,11 +19,13 @@
       "PrometheousGrafana": {
         "commandName": "Project",
         "launchBrowser": true,
-        "launchUrl": "api",
         "environmentVariables": {
           "ASPNETCORE_ENVIRONMENT": "Development",
           "MongoDb__DatabaseName": "PrometheusDb",
-          "MongoDb__ConnectionString": "mongodb://localhost:27017/PrometheusDb"
+          "MongoDb__ConnectionString": "mongodb://localhost:27017/PrometheusDb",
+          "RabbitMq__Uri": "amqp://localhost:5672/Prometheus",
+          "RabbitMq__Username": "guest",
+          "RabbitMq__Password": "guest"
         },
         "applicationUrl": "https://localhost:8001/"
       }

@@ -3,7 +3,7 @@ using MongoDB.Driver;
 using LanguageExt;
 using PrometheusGrafana.Models;
 
-namespace PrometheusGrafana.Gateways
+namespace PrometheusGrafana.MongoDb.Gateways
 {
     public interface IPersonGateway
     {
@@ -18,7 +18,7 @@ namespace PrometheusGrafana.Gateways
         private readonly IMongoCollection<Person> _collection;
         private const string CollectionName = "Persons";
 
-        public PersonGateway(IMongoDb mongoDb)
+        public PersonGateway(IMongoConnDatabase mongoDb)
         {
             _collection = mongoDb.Database.GetCollection<Person>(CollectionName);
         }

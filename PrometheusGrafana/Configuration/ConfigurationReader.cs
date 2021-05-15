@@ -11,7 +11,8 @@ namespace PrometheusGrafana.Configuration
             return new RootConfiguration
             {
                 ServiceName = cfg["ServiceName"],
-                MongoConfigurationDb = ReadMongoConfigurationDb(cfg)
+                MongoConfigurationDb = ReadMongoConfigurationDb(cfg),
+                RabbitConfiguration = ReadRabbitMqConfiguration(cfg)
             };
         }
 
@@ -23,6 +24,18 @@ namespace PrometheusGrafana.Configuration
             {
                 ConnectionString = mongoDbSection["ConnectionString"],
                 DatabaseName = mongoDbSection["DatabaseName"]
+            };
+        }
+
+        private static RabbitConnectionConfiguration ReadRabbitMqConfiguration(IConfigurationRoot cfg)
+        {
+            var rabbitmqSection = cfg.GetSection("RabbitMq");
+
+            return new RabbitConnectionConfiguration
+            {
+                Uri = rabbitmqSection["Uri"],
+                Username = rabbitmqSection["Username"],
+                Password = rabbitmqSection["Password"]
             };
         }
     }
