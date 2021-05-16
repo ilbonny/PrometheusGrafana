@@ -21,7 +21,7 @@ namespace PrometheusGrafana
             Console.WriteLine("starting...");
     
             _messageBus.Start();
-            
+
             Console.WriteLine("started...");
 
             return Task.CompletedTask;
@@ -30,6 +30,8 @@ namespace PrometheusGrafana
         public Task StopAsync(CancellationToken cancellationToken)
         {
             Console.WriteLine("stopping...");
+            
+            _messageBus.Stop();
     
             Console.WriteLine("stopped...");
 

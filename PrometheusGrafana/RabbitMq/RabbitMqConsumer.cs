@@ -1,78 +1,58 @@
-using System;
-using System.Text;
-using Newtonsoft.Json;
-using PrometheusGrafana.Configuration;
-using PrometheusGrafana.MongoDb.Gateways;
-using PrometheusGrafana.RabbitMq.Models;
+using System.Threading.Tasks;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
 namespace PrometheusGrafana.RabbitMq
 {
-    public interface IRabbitMqConsumer<T> where T : IPersonId
+    public interface IRabbitMqConsumer
     {
-        void Consume();
+        void Start(IConnection connection);
+        void Stop();
     }
 
-    public class RabbitMqConsumer<T> : IRabbitMqConsumer<T> where T : IPersonId
+    public class RabbitMqConsumer : IRabbitMqConsumer
     {
-        private readonly string _queueName;
-        private readonly RabbitConnectionConfiguration _configuration;
-        private readonly IActionGateway _actionGateway;
+        private readonly RabbitMqConsumerConfiguration _configuration;
+        private readonly IProcessorMessage _processorMessage;
+        private IModel _channel;
 
-        public RabbitMqConsumer(RabbitConnectionConfiguration configuration,
-            string queueName, IActionGateway actionGateway)
+        public RabbitMqConsumer(RabbitMqConsumerConfiguration configuration, IProcessorMessage processorMessage)
         {
             _configuration = configuration;
-            _queueName = queueName;
-            _actionGateway = actionGateway;
-
-            CreateQueue();
+            _processorMessage = processorMessage;
         }
 
-        public void Consume()
+        public void Start(IConnection connection)
         {
-            using (var connection = OpenConnection())
-            using (var channel = connection.CreateModel())
-            {
-                var consumer = new EventingBasicConsumer(channel);
-
-                consumer.Received += (model, ea) =>
-                {
-                    var body = ea.Body.ToArray();
-                    var message = Encoding.UTF8.GetString(body);
-                    
-                    var entity = JsonConvert.DeserializeObject<T>(message);
-                    _actionGateway.Insert(new PrometheusGrafana.Models.Action(entity.Id, nameof(T)));
-                    
-                };
-
-                channel.BasicConsume(queue: _queueName,
-                                     autoAck: true,
-                                     consumer: consumer);
-            }
+             _channel = Configure(connection.CreateModel());
         }
 
-
-        private void CreateQueue()
+        public void Stop()
         {
-            using (var connection = OpenConnection())
-            using (var channel = connection.CreateModel())
-                channel.QueueDeclare(_queueName, false, false, false, null);
+            _channel?.Close();
+            _channel?.Dispose();
         }
 
-        private IConnection OpenConnection()
+         private IModel Configure(IModel channel)
         {
-            var factory = new ConnectionFactory()
-            {
-                Uri = new Uri(_configuration.Uri),
-                UserName = _configuration.Username,
-                Password = _configuration.Password
-            };
+            channel.QueueDeclare(_configuration.QueueName, durable: true, exclusive: false, autoDelete: false);
+            channel.ExchangeDeclare(_configuration.ExchangeName, ExchangeType.Fanout, durable: true, autoDelete: false);
+            channel.QueueBind(_configuration.QueueName, _configuration.ExchangeName, "");
+            channel.BasicQos(0, 25, global: true);
 
-            return factory.CreateConnection();
+            var consumer = new AsyncEventingBasicConsumer(channel);
+            consumer.Received += ConsumerOnReceived;
+            channel.BasicConsume(_configuration.QueueName, autoAck: false, consumer: consumer);
+            return channel;
         }
 
+        private async Task ConsumerOnReceived(object sender, BasicDeliverEventArgs evt)
+        {
+            var body = evt.Body.ToArray();
+            await _processorMessage.ProcessAsync(body);
 
+             if (_channel.IsOpen)
+                _channel.BasicAck(evt.DeliveryTag, multiple: false);
+        }
     }
 }

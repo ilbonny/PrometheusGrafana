@@ -38,27 +38,50 @@ namespace PrometheusGrafana
             services.AddSingleton<IMongoConnDatabase>(x =>
                 new MongoConnDatabase(config.MongoConfigurationDb));
 
+            var exchangeAddedName = "Prometheus.Person.Exchange.Added";
             var queueAddedName = "Prometheus.Person.Queue.Added";
+            var exchangeModifiedName = "Prometheus.Person.Exchange.Modified";
             var queueModifiedName = "Prometheus.Person.Queue.Modified";
+
+            services.AddSingleton<IRabbitMqPublisher>(x =>
+                new RabbitMqPublisher(
+                    new RabbitMqPublisherConfiguration
+                    {
+                        ExchangeName = exchangeAddedName,
+                        QueueName = queueAddedName
+                    })
+                );
+
+            services.AddSingleton<IRabbitMqPublisher>(x =>
+                new RabbitMqPublisher(
+                    new RabbitMqPublisherConfiguration
+                    {
+                        ExchangeName = exchangeModifiedName,
+                        QueueName = queueModifiedName
+                    })
+                );
+
+            services.AddSingleton<IRabbitMqConsumer>(x =>
+                new RabbitMqConsumer(
+                    new RabbitMqConsumerConfiguration
+                    {
+                        ExchangeName = exchangeAddedName,
+                        QueueName = queueAddedName
+                    },
+                    new ProcessorMessageAdded(services.BuildServiceProvider().GetService<IActionGateway>())
+                    ));
             
-            services.AddSingleton<IRabbitMqPublisher<PersonAdded>>(x =>
-                new RabbitMqPublisher<PersonAdded>(config.RabbitConfiguration, "Prometheus.Person.Exchange.Added",queueAddedName));
+            services.AddSingleton<IRabbitMqConsumer>(x =>
+                new RabbitMqConsumer(
+                    new RabbitMqConsumerConfiguration
+                    {
+                        ExchangeName = exchangeModifiedName,
+                        QueueName = queueModifiedName
+                    },
+                    new ProcessorMessageModified(services.BuildServiceProvider().GetService<IActionGateway>())
+                    ));
 
-            services.AddSingleton<IRabbitMqPublisher<PersonModified>>(x =>
-                new RabbitMqPublisher<PersonModified>(config.RabbitConfiguration, "Prometheus.Person.Exchange.Modified",queueModifiedName));
-
-            services.AddSingleton<IRabbitMqConsumer<PersonAdded>>(x =>
-                new RabbitMqConsumer<PersonAdded>(config.RabbitConfiguration, queueAddedName,
-                services.BuildServiceProvider().GetService<IActionGateway>()));
-
-            services.AddSingleton<IRabbitMqConsumer<PersonModified>>(x =>
-                new RabbitMqConsumer<PersonModified>(config.RabbitConfiguration, queueModifiedName,
-                services.BuildServiceProvider().GetService<IActionGateway>()));
-
-            services.AddSingleton<IMessageBus>(x=> new MessageBus(
-                services.BuildServiceProvider().GetService<IRabbitMqConsumer<PersonAdded>>(),
-                services.BuildServiceProvider().GetService<IRabbitMqConsumer<PersonModified>>())                
-            );
+            services.AddSingleton<IMessageBus, MessageBus>();
 
         }
     }
