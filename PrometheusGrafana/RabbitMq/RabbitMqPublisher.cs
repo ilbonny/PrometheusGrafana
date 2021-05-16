@@ -51,7 +51,7 @@ namespace PrometheusGrafana.RabbitMq
             }
         }
 
-        public IConnection OpenConnection()
+        private IConnection OpenConnection()
         {
             var factory = new ConnectionFactory()
             {
