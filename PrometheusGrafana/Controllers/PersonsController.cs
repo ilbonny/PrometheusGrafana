@@ -3,6 +3,7 @@ using PrometheusGrafana.MongoDb.Gateways;
 using System.Threading.Tasks;
 using PrometheusGrafana.Models;
 using PrometheusGrafana.RabbitMq;
+using PrometheusGrafana.RabbitMq.Models;
 using System;
 using Microsoft.AspNetCore.Http;
 
@@ -12,12 +13,15 @@ namespace PrometheusGrafana.Controllers
     public class PersonsController : Controller
     {
         private readonly IPersonGateway _personGateway;
-        private readonly IPersonPublisher _personPublisher;
+        private readonly IRabbitMqPublisher<PersonAdded> _publisherAdded;
+        private readonly IRabbitMqPublisher<PersonModified> _publisherModified;
 
-        public PersonsController(IPersonGateway personGateway, IPersonPublisher personPublisher)
+        public PersonsController(IPersonGateway personGateway, 
+            IRabbitMqPublisher<PersonAdded> publisherAdded, IRabbitMqPublisher<PersonModified> publisherModified)
         {
             _personGateway = personGateway;
-            _personPublisher = personPublisher;
+            _publisherAdded = publisherAdded;
+            _publisherModified = publisherModified;
         }
 
         [HttpGet("{id}", Name = "GetById")]
@@ -38,7 +42,7 @@ namespace PrometheusGrafana.Controllers
 
             person.Timestamp = DateTime.UtcNow;
             var entity = await _personGateway.Insert(person);
-            _personPublisher.Publish(entity);
+            _publisherAdded.Publish(new PersonAdded(entity.Id));
 
             return CreatedAtAction(nameof(GetById), new { id = entity.Id }, entity);
         }
@@ -48,6 +52,8 @@ namespace PrometheusGrafana.Controllers
         {
             person.Timestamp = DateTime.UtcNow;
             await _personGateway.Save(person);
+
+            _publisherModified.Publish(new PersonModified(person.Id));
             return Ok();
         }
 

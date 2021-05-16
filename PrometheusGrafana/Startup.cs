@@ -6,6 +6,7 @@ using PrometheusGrafana.Models;
 using PrometheusGrafana.MongoDb;
 using PrometheusGrafana.MongoDb.Gateways;
 using PrometheusGrafana.RabbitMq;
+using PrometheusGrafana.RabbitMq.Models;
 
 namespace PrometheusGrafana
 {
@@ -35,8 +36,11 @@ namespace PrometheusGrafana
             services.AddSingleton<IMongoConnDatabase>(x =>
                 new MongoConnDatabase(config.MongoConfigurationDb));
             
-            services.AddSingleton<IRabbitMqPublisher<Person>>(x =>
-                new RabbitMqPublisher<Person>(config.RabbitConfiguration, "Prometheus.Person.Exchange.Added","Prometheus.Person.Queue.Added"));
+            services.AddSingleton<IRabbitMqPublisher<PersonAdded>>(x =>
+                new RabbitMqPublisher<PersonAdded>(config.RabbitConfiguration, "Prometheus.Person.Exchange.Added","Prometheus.Person.Queue.Added"));
+
+            services.AddSingleton<IRabbitMqPublisher<PersonModified>>(x =>
+                new RabbitMqPublisher<PersonModified>(config.RabbitConfiguration, "Prometheus.Person.Exchange.Modified","Prometheus.Person.Queue.Modified"));
         }
     }
 }
