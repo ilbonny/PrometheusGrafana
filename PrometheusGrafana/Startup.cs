@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -53,6 +54,11 @@ namespace PrometheusGrafana
             services.AddSingleton<IRabbitMqConsumer<PersonModified>>(x =>
                 new RabbitMqConsumer<PersonModified>(config.RabbitConfiguration, queueModifiedName,
                 services.BuildServiceProvider().GetService<IActionGateway>()));
+
+            services.AddSingleton<IMessageBus>(x=> new MessageBus(
+                services.BuildServiceProvider().GetService<IRabbitMqConsumer<PersonAdded>>(),
+                services.BuildServiceProvider().GetService<IRabbitMqConsumer<PersonModified>>())                
+            );
 
         }
     }

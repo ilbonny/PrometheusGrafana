@@ -9,10 +9,19 @@ namespace PrometheusGrafana
 {
     public class RootService : IHostedService
     {
+        private readonly IMessageBus _messageBus;
+
+        public RootService(IMessageBus messageBus)
+        {
+            _messageBus = messageBus;
+        }
+
         public Task StartAsync(CancellationToken cancellationToken)
         {
             Console.WriteLine("starting...");
     
+            _messageBus.Start();
+            
             Console.WriteLine("started...");
 
             return Task.CompletedTask;
