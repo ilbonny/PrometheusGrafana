@@ -4,6 +4,6 @@ namespace PrometheusGrafana.Configuration
     {
         public string ServiceName { get; set; }
         public MongoConnectionConfiguration MongoConfigurationDb { get; set; }        
-        public RabbitConnectionConfiguration RabbitConfiguration { get; set; }
+        public RabbitConfiguration RabbitConfiguration { get; set; }
     }
 }

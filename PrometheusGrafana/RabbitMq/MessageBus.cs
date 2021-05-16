@@ -19,7 +19,7 @@ namespace PrometheusGrafana.RabbitMq
         private IConnection _publishersConnection;
         private IConnectionFactory _connectionFactory;
 
-        public MessageBus(RabbitConnectionConfiguration configuration, 
+        public MessageBus(RabbitMqConnectionConfiguration configuration, 
                 IEnumerable<IRabbitMqConsumer> consumers, 
                 IEnumerable<IRabbitMqPublisher> publishers)
         {
@@ -62,7 +62,7 @@ namespace PrometheusGrafana.RabbitMq
                    connection.Close();
         }
 
-        private IConnectionFactory CreateConnectionFactory(RabbitConnectionConfiguration configuration)
+        private IConnectionFactory CreateConnectionFactory(RabbitMqConnectionConfiguration configuration)
         {
             var connectionFactory = new ConnectionFactory
             {
