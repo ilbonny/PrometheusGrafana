@@ -10,8 +10,7 @@ namespace PrometheusGrafana.Configuration
         
         public RabbitMqPublisherConfiguration AddedPublisherConfiguration { get; set; }
         public RabbitMqPublisherConfiguration ModifiedPublisherConfiguration { get; set; }
-        public RabbitMqPublisherConfiguration DeletedPublisherConfiguration { get; set; }
-        
+        public RabbitMqPublisherConfiguration DeletedPublisherConfiguration { get; set; }        
     }
 
     public class RabbitMqConnectionConfiguration

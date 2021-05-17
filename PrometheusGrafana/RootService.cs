@@ -3,16 +3,19 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
+using PrometheusGrafana.Metrics;
 using PrometheusGrafana.RabbitMq;
 
 namespace PrometheusGrafana
 {
     public class RootService : IHostedService
     {
+        private readonly MetricsService _metricsService;
         private readonly IMessageBus _messageBus;
 
-        public RootService(IMessageBus messageBus)
+        public RootService(MetricsService metricsService, IMessageBus messageBus)
         {
+            _metricsService = metricsService;
             _messageBus = messageBus;
         }
 
@@ -21,6 +24,7 @@ namespace PrometheusGrafana
             Console.WriteLine("starting...");
     
             _messageBus.Start();
+            _metricsService.Start();
 
             Console.WriteLine("started...");
 
@@ -32,6 +36,7 @@ namespace PrometheusGrafana
             Console.WriteLine("stopping...");
             
             _messageBus.Stop();
+            _metricsService.Stop();
     
             Console.WriteLine("stopped...");
 

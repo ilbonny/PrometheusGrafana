@@ -1,5 +1,6 @@
 version: '3.7'
 services:
+
   mongodb_container:
     image: 
        mongo:4.2    
@@ -22,11 +23,39 @@ services:
        - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
        - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
 
+  prometheus:
+     image: 
+        prom/prometheus
+     container_name: 
+        'prometheus'
+     restart: 
+        always
+     ports:
+        - 9090:9090
+     volumes:
+        - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+     networks:
+          - dotnetcorepromgrafana
+
+  grafana: 
+     image: 
+      grafana/grafana
+     container_name: 
+        'grafana'
+     environment:
+       - GF_SECURITY_ADMIN_PASSWORD=P@ssw0rd
+     restart: 
+        always
+     ports:
+       - 3000:3000
+     networks:
+         - dotnetcorepromgrafana
+
 volumes:
   mongodb_data_container:
 
 networks:
-  rabbitmq_go_net:
+  dotnetcorepromgrafana:
      driver: bridge
 
 
