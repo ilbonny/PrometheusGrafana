@@ -1,6 +1,4 @@
 using System;
-using System.Text;
-using System.Threading.Tasks;
 using PrometheusGrafana.Configuration;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
