@@ -65,6 +65,9 @@ namespace PrometheusGrafana.Controllers
         public async Task<IActionResult> Delete(string id)
         {
             await _personGateway.Delete(id);
+            _publishers.Single(x=>x.Type == typeof(PersonDeleted))
+                .Publish(new PersonDeleted(id));
+
             return Ok();
         }
     }

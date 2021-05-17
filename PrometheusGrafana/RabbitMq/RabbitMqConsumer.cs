@@ -1,3 +1,5 @@
+using System;
+using System.Text;
 using System.Threading.Tasks;
 using PrometheusGrafana.Configuration;
 using RabbitMQ.Client;
@@ -41,19 +43,36 @@ namespace PrometheusGrafana.RabbitMq
             channel.QueueBind(_configuration.QueueName, _configuration.ExchangeName, "");
             channel.BasicQos(0, 25, global: true);
 
-            var consumer = new AsyncEventingBasicConsumer(channel);
+            var consumer = new EventingBasicConsumer(channel);
             consumer.Received += ConsumerOnReceived;
+            
             channel.BasicConsume(_configuration.QueueName, autoAck: false, consumer: consumer);
             return channel;
         }
 
-        private async Task ConsumerOnReceived(object sender, BasicDeliverEventArgs evt)
+        private void ConsumerOnReceived(object sender, BasicDeliverEventArgs evt)
         {
-            var body = evt.Body.ToArray();
-            await _processorMessage.ProcessAsync(body);
-
-             if (_channel.IsOpen)
-                _channel.BasicAck(evt.DeliveryTag, multiple: false);
+            try
+            {
+                _processorMessage.ProcessAsync(evt.Body.ToArray());
+                TryToAckDelivery(evt.DeliveryTag);
+            }
+            catch (Exception e)
+            {
+                TryToNAckDelivery(evt.DeliveryTag);
+            }
         }
+
+        private void TryToAckDelivery(ulong deliveryTag)
+        {
+            if (_channel.IsOpen)
+                _channel.BasicAck(deliveryTag, multiple: false);
+        }
+
+        private void TryToNAckDelivery(ulong deliveryTag)
+        {
+            if (_channel.IsOpen)
+                _channel.BasicNack(deliveryTag, multiple: false, requeue: true);
+        }        
     }
 }

@@ -6,11 +6,11 @@ using PrometheusGrafana.RabbitMq.Models;
 
 namespace PrometheusGrafana.RabbitMq
 {
-    public class ProcessorMessageModified : IProcessorMessage
+    public class ProcessorMessageDeleted : IProcessorMessage
     {
         private readonly IActionGateway _actionGateway;
 
-        public ProcessorMessageModified(IActionGateway actionGateway)
+        public ProcessorMessageDeleted(IActionGateway actionGateway)
         {
              _actionGateway = actionGateway;
         }
@@ -19,9 +19,9 @@ namespace PrometheusGrafana.RabbitMq
         {
             var message = Encoding.UTF8.GetString(body);
 
-            var entity = JsonConvert.DeserializeObject<PersonModified>(message);
+            var entity = JsonConvert.DeserializeObject<PersonDeleted>(message);
             return _actionGateway.Insert(
-                new PrometheusGrafana.Models.Action(entity.Id, nameof(PersonModified)));
+                new PrometheusGrafana.Models.Action(entity.Id, nameof(PersonDeleted)));
         }
     }
 }

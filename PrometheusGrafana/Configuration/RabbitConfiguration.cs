@@ -3,10 +3,15 @@ namespace PrometheusGrafana.Configuration
     public class RabbitConfiguration
     {
         public RabbitMqConnectionConfiguration RabbitConnectionConfiguration { get; set; }
-        public RabbitMqPublisherConfiguration AddedPublisherConfiguration { get; set; }
-        public RabbitMqPublisherConfiguration ModifiedPublisherConfiguration { get; set; }
+
         public RabbitMqConsumerConfiguration AddedConsumerConfiguration { get; set; }
         public RabbitMqConsumerConfiguration ModifiedConsumerConfiguration { get; set; }
+        public RabbitMqConsumerConfiguration DeletedConsumerConfiguration { get; set; }
+        
+        public RabbitMqPublisherConfiguration AddedPublisherConfiguration { get; set; }
+        public RabbitMqPublisherConfiguration ModifiedPublisherConfiguration { get; set; }
+        public RabbitMqPublisherConfiguration DeletedPublisherConfiguration { get; set; }
+        
     }
 
     public class RabbitMqConnectionConfiguration

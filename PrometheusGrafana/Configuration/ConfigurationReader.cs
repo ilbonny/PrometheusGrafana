@@ -43,21 +43,30 @@ namespace PrometheusGrafana.Configuration
                 },
                 AddedConsumerConfiguration = new RabbitMqConsumerConfiguration
                 {
-                    ExchangeName = consumersSection.GetSection("AddedPublisherConfiguration")["ExchangeName"],
+                    ExchangeName = publishersSection.GetSection("AddedPublisherConfiguration")["ExchangeName"],
                     QueueName = consumersSection.GetSection("AddedConsumerConfiguration")["QueueName"]
                 },
                 ModifiedConsumerConfiguration = new RabbitMqConsumerConfiguration
                 {
-                    ExchangeName = consumersSection.GetSection("ModifiedPublisherConfiguration")["ExchangeName"],
+                    ExchangeName = publishersSection.GetSection("ModifiedPublisherConfiguration")["ExchangeName"],
                     QueueName = consumersSection.GetSection("ModifiedConsumerConfiguration")["QueueName"]
+                },
+                DeletedConsumerConfiguration = new RabbitMqConsumerConfiguration
+                {
+                    ExchangeName = publishersSection.GetSection("DeletedPublisherConfiguration")["ExchangeName"],
+                    QueueName = consumersSection.GetSection("DeletedConsumerConfiguration")["QueueName"]
                 },
                 AddedPublisherConfiguration = new RabbitMqPublisherConfiguration
                 {
-                    ExchangeName = consumersSection.GetSection("AddedPublisherConfiguration")["ExchangeName"]
+                    ExchangeName = publishersSection.GetSection("AddedPublisherConfiguration")["ExchangeName"]
                 },
                 ModifiedPublisherConfiguration = new RabbitMqPublisherConfiguration
                 {
-                    ExchangeName = consumersSection.GetSection("ModifiedPublisherConfiguration")["ExchangeName"]
+                    ExchangeName = publishersSection.GetSection("ModifiedPublisherConfiguration")["ExchangeName"]
+                },
+                DeletedPublisherConfiguration = new RabbitMqPublisherConfiguration
+                {
+                    ExchangeName = publishersSection.GetSection("DeletedPublisherConfiguration")["ExchangeName"]
                 }
             };
         }

@@ -44,6 +44,17 @@ namespace PrometheusGrafana.Configuration
                     (_, __) => typeof(PersonModified))
                 .SingleInstance()
                 .AsImplementedInterfaces();
+            
+            builder
+                .RegisterType<RabbitMqPublisher>()
+                .WithParameter(
+                    (pi, _) => pi.ParameterType == typeof(RabbitMqPublisherConfiguration),
+                    (_, __) => _configuration.DeletedPublisherConfiguration)
+                .WithParameter(
+                    (pi, _) => pi.ParameterType == typeof(System.Type),
+                    (_, __) => typeof(PersonDeleted))
+                .SingleInstance()
+                .AsImplementedInterfaces();
 
             builder
                 .RegisterType<ProcessorMessageAdded>()        
@@ -57,15 +68,29 @@ namespace PrometheusGrafana.Configuration
                 .SingleInstance()
                 .AsImplementedInterfaces();
 
+             builder
+                .RegisterType<ProcessorMessageDeleted>()        
+                .Named<IProcessorMessage>("ProcessorMessageDeleted")        
+                .SingleInstance()
+                .AsImplementedInterfaces();
+
             builder.Register(ctx => new RabbitMqConsumer(
                     _configuration.AddedConsumerConfiguration, 
                 ctx.ResolveNamed<IProcessorMessage>("ProcessorMessageAdded")))
-                .SingleInstance();
+                .SingleInstance()
+                .AsImplementedInterfaces();
 
             builder.Register(ctx => new RabbitMqConsumer(
                     _configuration.ModifiedConsumerConfiguration, 
                 ctx.ResolveNamed<IProcessorMessage>("ProcessorMessageModified")))
-                .SingleInstance();         
+                .SingleInstance()
+                .AsImplementedInterfaces();     
+
+            builder.Register(ctx => new RabbitMqConsumer(
+                    _configuration.DeletedConsumerConfiguration, 
+                ctx.ResolveNamed<IProcessorMessage>("ProcessorMessageDeleted")))
+                .SingleInstance()
+                .AsImplementedInterfaces(); 
 
         }
     }
