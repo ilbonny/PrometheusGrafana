@@ -1,4 +1,8 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Extensions.Configuration;
+using PrometheusGrafana.Metrics;
 
 namespace PrometheusGrafana.Configuration
 {
@@ -12,7 +16,8 @@ namespace PrometheusGrafana.Configuration
             {
                 ServiceName = cfg["ServiceName"],
                 MongoConfigurationDb = ReadMongoConfigurationDb(cfg),
-                RabbitConfiguration = ReadRabbitMqConfiguration(cfg)
+                RabbitConfiguration = ReadRabbitMqConfiguration(cfg),
+                MetricsConfiguration = ReadMetricsConfiguration(cfg)
             };
         }
 
@@ -69,6 +74,31 @@ namespace PrometheusGrafana.Configuration
                     ExchangeName = publishersSection.GetSection("DeletedPublisherConfiguration")["ExchangeName"]
                 }
             };
+        }
+
+        private static MetricsConfiguration ReadMetricsConfiguration(IConfigurationRoot cfg)
+        {
+            var metricsSection = cfg.GetSection("Metrics");
+
+            return new MetricsConfiguration
+            {
+                HostName = metricsSection["HostName"],
+                Port = Int32.Parse(metricsSection["Port"]),
+                Url = metricsSection["Url"],
+                SuppressDefaultMetrics = bool.Parse(metricsSection["SuppressDefaultMetrics"]),
+                Enabled = bool.Parse(metricsSection["Enabled"]),
+                Histograms = ReadHistogramConfigurations(metricsSection)
+            };
+        }
+
+        private static IEnumerable<HistogramConfiguration> ReadHistogramConfigurations(IConfigurationSection cfg)
+        {
+            return cfg.GetSection("Histograms").GetChildren()
+                .Select(c => new HistogramConfiguration
+            {
+                Id = c["Id"],
+                Buckets = BucketsParser.Parse(c["Buckets"])
+            });
         }
     }
 }
