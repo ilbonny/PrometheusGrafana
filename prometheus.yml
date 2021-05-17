@@ -5,5 +5,4 @@ scrape_configs:
   - job_name: 'prometheusgrafana-read-prometheus'
     static_configs:
     # replace the IP with your local IP for development
-    # localhost is not it, as that is w/in the container :)
-    - targets: ['prometheusgrafana:7000']
+    - targets: ['192.168.1.62:7000']

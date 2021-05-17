@@ -26,15 +26,16 @@ namespace PrometheusGrafana.Configuration
             builder.RegisterDecorator<IPersonGateway>(
                     (ctx, inner) => new PersonGatewayMetricsDecorator(
                         GetBuckets("personGateway"),
-                        inner
-                    ), "RealGateway")
+                        inner)
+                   , fromKey: "RealPersonGateway")
+
                 .SingleInstance();
-            
+
             builder.RegisterDecorator<IActionGateway>(
                     (ctx, inner) => new ActionGatewayMetricsDecorator(
                         GetBuckets("actionGateway"),
                         inner
-                    ), "RealGateway")
+                    ), fromKey: "RealActionGateway")
                 .SingleInstance();
         }
 

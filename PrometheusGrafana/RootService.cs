@@ -13,7 +13,8 @@ namespace PrometheusGrafana
         private readonly MetricsService _metricsService;
         private readonly IMessageBus _messageBus;
 
-        public RootService(MetricsService metricsService, IMessageBus messageBus)
+        public RootService(MetricsService metricsService, 
+            IMessageBus messageBus)
         {
             _metricsService = metricsService;
             _messageBus = messageBus;
