@@ -1,9 +1,12 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Autofac;
 using PrometheusGrafana.Metrics;
 using PrometheusGrafana.MongoDb.Gateways;
+using PrometheusGrafana.RabbitMq;
+using PrometheusGrafana.RabbitMq.Models;
 
 namespace PrometheusGrafana.Configuration
 {
@@ -37,6 +40,60 @@ namespace PrometheusGrafana.Configuration
                         inner
                     ), fromKey: "RealActionGateway")
                 .SingleInstance();
+
+            builder.RegisterDecorator<IRabbitMqPublisher>(
+                    (ctx, inner) => new MessagePublisherMetricsDecorator(
+                        "rabbit",
+                        inner
+                    ), fromKey: "AddedPublisherConfiguration")
+                .SingleInstance();
+            
+            builder.RegisterDecorator<IRabbitMqPublisher>(
+                    (ctx, inner) => new MessagePublisherMetricsDecorator(
+                        "rabbit",
+                        inner
+                    ), fromKey: "ModifiedPublisherConfiguration")
+                .SingleInstance();
+            
+            builder.RegisterDecorator<IRabbitMqPublisher>(
+                    (ctx, inner) => new MessagePublisherMetricsDecorator(
+                        "rabbit",
+                        inner
+                    ), fromKey: "DeletedPublisherConfiguration")
+                .SingleInstance();
+
+            builder.RegisterDecorator<IProcessorMessage>(
+                    (ctx, inner) => new Decorator(
+                        inner
+                    ), fromKey: "ProcessorMessageAdded")
+                .SingleInstance();
+
+            // builder.RegisterDecorator<IProcessorMessage>(
+            //         (ctx, inner) => new MessageProcessorMetricsDecorator(
+            //             inner,
+            //             typeof(PersonAdded),
+            //             "processor",
+            //             GetBuckets("rabbit_processor")
+            //         ), fromKey: "ProcessorMessageAdded")
+            //     .SingleInstance();
+
+            // builder.RegisterDecorator<IProcessorMessage>(
+            //         (ctx, inner) => new MessageProcessorMetricsDecorator(
+            //             inner,
+            //             typeof(PersonModified),
+            //             "processor",
+            //             GetBuckets("rabbit_processor")
+            //         ), fromKey: "ProcessorMessageModified")
+            //     .SingleInstance();
+
+            // builder.RegisterDecorator<IProcessorMessage>(
+            //         (ctx, inner) => new MessageProcessorMetricsDecorator(
+            //             inner,
+            //             typeof(PersonDeleted),
+            //             "processor",
+            //             GetBuckets("rabbit_processor")
+            //         ), fromKey: "ProcessorMessageDeleted")
+            //     .SingleInstance();
         }
 
         private static string GetMessageMetricName<TMessage>() =>
@@ -54,5 +111,20 @@ public static class HistogramHelper
         var match = configs.FirstOrDefault(h => h.Id == histogramConfigId);
 
         return match?.Buckets; // if null is provided, the default buckets will be used by Prometheus
+    }
+}
+
+public class Decorator : IProcessorMessage
+{
+        private IProcessorMessage _decoratee;
+
+        public Decorator(IProcessorMessage decoratee)
+        {
+            _decoratee = decoratee;            
+        }
+
+    public Task ProcessAsync(byte[] body)
+    {
+        return _decoratee.ProcessAsync(body);
     }
 }

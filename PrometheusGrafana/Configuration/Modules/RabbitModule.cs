@@ -32,7 +32,7 @@ namespace PrometheusGrafana.Configuration
                     (pi, _) => pi.ParameterType == typeof(System.Type),
                     (_, __) => typeof(PersonAdded))
                 .SingleInstance()
-                .AsImplementedInterfaces();
+                .Named<IRabbitMqPublisher>("AddedPublisherConfiguration");
 
             builder
                 .RegisterType<RabbitMqPublisher>()
@@ -43,7 +43,7 @@ namespace PrometheusGrafana.Configuration
                     (pi, _) => pi.ParameterType == typeof(System.Type),
                     (_, __) => typeof(PersonModified))
                 .SingleInstance()
-                .AsImplementedInterfaces();
+                .Named<IRabbitMqPublisher>("ModifiedPublisherConfiguration");
             
             builder
                 .RegisterType<RabbitMqPublisher>()
@@ -54,25 +54,22 @@ namespace PrometheusGrafana.Configuration
                     (pi, _) => pi.ParameterType == typeof(System.Type),
                     (_, __) => typeof(PersonDeleted))
                 .SingleInstance()
-                .AsImplementedInterfaces();
+                .Named<IRabbitMqPublisher>("DeletedPublisherConfiguration");
 
             builder
-                .RegisterType<ProcessorMessageAdded>()        
-                .Named<IProcessorMessage>("ProcessorMessageAdded")        
+                .RegisterType<ProcessorMessageAdded>()       
                 .SingleInstance()
-                .AsImplementedInterfaces();
+                .Named<IProcessorMessage>("ProcessorMessageAdded");                
 
              builder
                 .RegisterType<ProcessorMessageModified>()        
                 .Named<IProcessorMessage>("ProcessorMessageModified")        
-                .SingleInstance()
-                .AsImplementedInterfaces();
+                .SingleInstance();
 
              builder
                 .RegisterType<ProcessorMessageDeleted>()        
                 .Named<IProcessorMessage>("ProcessorMessageDeleted")        
-                .SingleInstance()
-                .AsImplementedInterfaces();
+                .SingleInstance();
 
             builder.Register(ctx => new RabbitMqConsumer(
                     _configuration.AddedConsumerConfiguration, 
