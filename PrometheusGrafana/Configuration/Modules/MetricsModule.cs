@@ -41,59 +41,32 @@ namespace PrometheusGrafana.Configuration
                     ), fromKey: "RealActionGateway")
                 .SingleInstance();
 
-            builder.RegisterDecorator<IRabbitMqPublisher>(
-                    (ctx, inner) => new MessagePublisherMetricsDecorator(
-                        "rabbit",
-                        inner
-                    ), fromKey: "AddedPublisherConfiguration")
-                .SingleInstance();
-            
-            builder.RegisterDecorator<IRabbitMqPublisher>(
-                    (ctx, inner) => new MessagePublisherMetricsDecorator(
-                        "rabbit",
-                        inner
-                    ), fromKey: "ModifiedPublisherConfiguration")
-                .SingleInstance();
-            
-            builder.RegisterDecorator<IRabbitMqPublisher>(
-                    (ctx, inner) => new MessagePublisherMetricsDecorator(
-                        "rabbit",
-                        inner
-                    ), fromKey: "DeletedPublisherConfiguration")
-                .SingleInstance();
+            RegisterPublisherDecorator<PersonAdded>(builder);
+            RegisterPublisherDecorator<PersonModified>(builder);
+            RegisterPublisherDecorator<PersonDeleted>(builder);
 
-            builder.RegisterDecorator<IProcessorMessage>(
-                    (ctx, inner) => new Decorator(
-                        inner
-                    ), fromKey: "ProcessorMessageAdded")
+            RegisterProcessorDecorator<PersonAdded>(builder);
+            RegisterProcessorDecorator<PersonModified>(builder);
+            RegisterProcessorDecorator<PersonDeleted>(builder);
+        }
+
+        private void RegisterPublisherDecorator<T>(ContainerBuilder builder){
+            builder.RegisterDecorator<IPublisherMessage<T>>(
+               (ctx, inner) => new MessagePublisherMetricsDecorator<T>(
+                       inner, "rabbit"
+                     ), fromKey: "realPublisher")
+                 .SingleInstance();
+        }
+
+        private void RegisterProcessorDecorator<T>(ContainerBuilder builder){
+
+            builder.RegisterDecorator<IProcessorMessage<T>>(
+                    (ctx, inner) => new MessageProcessorMetricsDecorator<T>(
+                        inner,
+                        "processor",
+                        GetBuckets("rabbit_processor")
+                    ), fromKey: "realProcessor")
                 .SingleInstance();
-
-            // builder.RegisterDecorator<IProcessorMessage>(
-            //         (ctx, inner) => new MessageProcessorMetricsDecorator(
-            //             inner,
-            //             typeof(PersonAdded),
-            //             "processor",
-            //             GetBuckets("rabbit_processor")
-            //         ), fromKey: "ProcessorMessageAdded")
-            //     .SingleInstance();
-
-            // builder.RegisterDecorator<IProcessorMessage>(
-            //         (ctx, inner) => new MessageProcessorMetricsDecorator(
-            //             inner,
-            //             typeof(PersonModified),
-            //             "processor",
-            //             GetBuckets("rabbit_processor")
-            //         ), fromKey: "ProcessorMessageModified")
-            //     .SingleInstance();
-
-            // builder.RegisterDecorator<IProcessorMessage>(
-            //         (ctx, inner) => new MessageProcessorMetricsDecorator(
-            //             inner,
-            //             typeof(PersonDeleted),
-            //             "processor",
-            //             GetBuckets("rabbit_processor")
-            //         ), fromKey: "ProcessorMessageDeleted")
-            //     .SingleInstance();
         }
 
         private static string GetMessageMetricName<TMessage>() =>
@@ -111,20 +84,5 @@ public static class HistogramHelper
         var match = configs.FirstOrDefault(h => h.Id == histogramConfigId);
 
         return match?.Buckets; // if null is provided, the default buckets will be used by Prometheus
-    }
-}
-
-public class Decorator : IProcessorMessage
-{
-        private IProcessorMessage _decoratee;
-
-        public Decorator(IProcessorMessage decoratee)
-        {
-            _decoratee = decoratee;            
-        }
-
-    public Task ProcessAsync(byte[] body)
-    {
-        return _decoratee.ProcessAsync(body);
     }
 }

@@ -2,8 +2,8 @@ using System.Threading.Tasks;
 
 namespace PrometheusGrafana.RabbitMq
 {
-    public interface IProcessorMessage
+    public interface IProcessorMessage<T>
     {
-        Task ProcessAsync(byte[] body);
+        Task Process(byte[] body);
     }
 }

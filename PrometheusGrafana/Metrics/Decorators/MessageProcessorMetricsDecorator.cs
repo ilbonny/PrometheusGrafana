@@ -8,17 +8,15 @@ using PrometheusGrafana.RabbitMq;
 
 namespace PrometheusGrafana.Configuration
 {
-    public class MessageProcessorMetricsDecorator : IProcessorMessage
+    public class MessageProcessorMetricsDecorator<T> : IProcessorMessage<T>
     {
         private Histogram _durationHistogram;
         private Counter _counter;
-        private IProcessorMessage _decoratee;
-        private Type _type;
+        private IProcessorMessage<T> _decoratee;
 
-        public MessageProcessorMetricsDecorator(IProcessorMessage decoratee, Type type, string messageMetricName, double[] durationHistogramBuckets)
+        public MessageProcessorMetricsDecorator(IProcessorMessage<T> decoratee, string messageMetricName, double[] durationHistogramBuckets)
         {
             _decoratee = decoratee;
-            _type = type;
             _durationHistogram = MetricsHelper.CreateHistogram(durationHistogramBuckets, GetHistogramLabelNames().ToArray(), messageMetricName,
                 "duration_seconds", "process");
 
@@ -26,13 +24,13 @@ namespace PrometheusGrafana.Configuration
                 "total", "process");            
         }
 
-        public async Task ProcessAsync(byte[] body)
+        public async Task Process(byte[] body)
         {
             using (GetHistogramObserver().NewTimer())
             {
                 try
                 {
-                    await _decoratee.ProcessAsync(body);
+                    await _decoratee.Process(body);
                     GetCounter(success: true).Inc();
                 }
                 catch (Exception)
@@ -41,11 +39,11 @@ namespace PrometheusGrafana.Configuration
                     throw;
                 }
             }
-        }
+        }        
 
         private IEnumerable<string> GetHistogramLabelNames()
         {
-            yield return _type.GetType().Name;
+            yield return typeof(T).Name;
         }
 
         private IEnumerable<string> GetCounterLabelNames()
@@ -55,7 +53,7 @@ namespace PrometheusGrafana.Configuration
 
         private IObserver GetHistogramObserver()
         {
-            return _durationHistogram.WithLabels(_type.GetType().Name);
+            return _durationHistogram.WithLabels(typeof(T).Name);
         }
 
         public Counter.Child GetCounter(bool success) =>
@@ -64,6 +62,6 @@ namespace PrometheusGrafana.Configuration
         private IEnumerable<string> GetCounterLabelValues(bool success)
         {
             yield return success ? "success" : "failure";
-        }
+        }        
     }
 }

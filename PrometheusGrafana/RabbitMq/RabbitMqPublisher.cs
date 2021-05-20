@@ -1,4 +1,3 @@
-using System;
 using System.Text;
 using Newtonsoft.Json;
 using PrometheusGrafana.Configuration;
@@ -10,22 +9,17 @@ namespace PrometheusGrafana.RabbitMq
     {
         void Start(IConnection connection);
         void Stop();
-        void Publish<T>(T entity);
-        Type Type { get; }
+        void Publish<T>(T massage);
     }
 
     public class RabbitMqPublisher : IRabbitMqPublisher
     {
         private readonly RabbitMqPublisherConfiguration _configuration;
-        
         private IModel _channel;
 
-        public Type Type { get; }
-
-        public RabbitMqPublisher(RabbitMqPublisherConfiguration configuration, Type type)
+        public RabbitMqPublisher(RabbitMqPublisherConfiguration configuration)
         {
             _configuration = configuration;
-            Type = type;
         }
 
         public void Start(IConnection connection)

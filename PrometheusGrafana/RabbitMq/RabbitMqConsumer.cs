@@ -11,21 +11,19 @@ namespace PrometheusGrafana.RabbitMq
         void Stop();
     }
 
-    public class RabbitMqConsumer : IRabbitMqConsumer
+    public abstract class RabbitMqConsumer : IRabbitMqConsumer
     {
         private readonly RabbitMqConsumerConfiguration _configuration;
-        private readonly IProcessorMessage _processorMessage;
         private IModel _channel;
 
-        public RabbitMqConsumer(RabbitMqConsumerConfiguration configuration, IProcessorMessage processorMessage)
+        public RabbitMqConsumer(RabbitMqConsumerConfiguration configuration)
         {
             _configuration = configuration;
-            _processorMessage = processorMessage;
         }
 
         public void Start(IConnection connection)
         {
-             _channel = Configure(connection.CreateModel());
+            _channel = Configure(connection.CreateModel());
         }
 
         public void Stop()
@@ -34,7 +32,7 @@ namespace PrometheusGrafana.RabbitMq
             _channel?.Dispose();
         }
 
-         private IModel Configure(IModel channel)
+        private IModel Configure(IModel channel)
         {
             channel.QueueDeclare(_configuration.QueueName, durable: true, exclusive: false, autoDelete: false);
             channel.ExchangeDeclare(_configuration.ExchangeName, ExchangeType.Fanout, durable: true, autoDelete: false);
@@ -43,7 +41,6 @@ namespace PrometheusGrafana.RabbitMq
 
             var consumer = new EventingBasicConsumer(channel);
             consumer.Received += ConsumerOnReceived;
-            
             channel.BasicConsume(_configuration.QueueName, autoAck: false, consumer: consumer);
             return channel;
         }
@@ -52,14 +49,17 @@ namespace PrometheusGrafana.RabbitMq
         {
             try
             {
-                _processorMessage.ProcessAsync(evt.Body.ToArray());
+                Process(evt.Body.ToArray());
                 TryToAckDelivery(evt.DeliveryTag);
             }
             catch (Exception e)
             {
+                Console.WriteLine(e);
                 TryToNAckDelivery(evt.DeliveryTag);
             }
         }
+
+        protected abstract void Process(byte[] body);
 
         private void TryToAckDelivery(ulong deliveryTag)
         {
@@ -71,6 +71,6 @@ namespace PrometheusGrafana.RabbitMq
         {
             if (_channel.IsOpen)
                 _channel.BasicNack(deliveryTag, multiple: false, requeue: true);
-        }        
+        }
     }
 }

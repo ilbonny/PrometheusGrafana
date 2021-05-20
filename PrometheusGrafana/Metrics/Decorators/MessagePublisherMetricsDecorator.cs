@@ -1,43 +1,29 @@
-using System;
 using Prometheus;
 using PrometheusGrafana.Metrics;
 using PrometheusGrafana.RabbitMq;
-using RabbitMQ.Client;
 
 namespace PrometheusGrafana.Configuration
 {
-    public class MessagePublisherMetricsDecorator : IRabbitMqPublisher
+    public class MessagePublisherMetricsDecorator<T> : IPublisherMessage<T>
     {
-        private readonly IRabbitMqPublisher _decoratee;
+        private readonly IPublisherMessage<T> _decoratee;
         private readonly Counter _counter;
 
-        public MessagePublisherMetricsDecorator(string messageMetricsName, IRabbitMqPublisher decoratee)
+        public MessagePublisherMetricsDecorator(IPublisherMessage<T> decoratee, string messageMetricsName)
         {
             _decoratee = decoratee;
             _counter = MetricsHelper.CreateCounter(new[] { "type" }, messageMetricsName, "total", "publish");
         }
 
-        public Type Type => _decoratee.Type;
-
-        public void Publish<T>(T entity)
+        public void Publish(T message)
         {
-            _decoratee.Publish(entity);
-            GetCounter<T>(entity).Inc();
+            _decoratee.Publish(message);
+             GetCounter(message).Inc();
         }
 
-        public Counter.Child GetCounter<T>(T entity)
+        public Counter.Child GetCounter(T message)
         {
-            return _counter.WithLabels(typeof(T).Name);
-        }
-
-        public void Start(IConnection connection)
-        {
-            _decoratee.Start(connection);
-        }
-
-        public void Stop()
-        {
-            _decoratee.Stop();
-        }
+            return _counter.WithLabels(message.GetType().Name);
+        }        
     }
 }

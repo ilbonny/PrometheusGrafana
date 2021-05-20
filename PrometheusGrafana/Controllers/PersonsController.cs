@@ -6,8 +6,6 @@ using PrometheusGrafana.RabbitMq;
 using PrometheusGrafana.RabbitMq.Models;
 using System;
 using Microsoft.AspNetCore.Http;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace PrometheusGrafana.Controllers
 {
@@ -15,13 +13,19 @@ namespace PrometheusGrafana.Controllers
     public class PersonsController : Controller
     {
         private readonly IPersonGateway _personGateway;
-        private readonly IEnumerable<IRabbitMqPublisher> _publishers;
+        private readonly IPublisherMessage<PersonAdded> _publisherAdded;
+        private readonly IPublisherMessage<PersonModified> _publisherModified;
+        private readonly IPublisherMessage<PersonDeleted> _publisherDeleted;
 
         public PersonsController(IPersonGateway personGateway, 
-            IEnumerable<IRabbitMqPublisher> publishers)
+            IPublisherMessage<PersonAdded> publisherAdded,
+            IPublisherMessage<PersonModified> publisherModified,
+            IPublisherMessage<PersonDeleted> publisherDeleted)
         {
             _personGateway = personGateway;
-            _publishers = publishers;
+            _publisherAdded = publisherAdded;
+            _publisherModified = publisherModified;
+            _publisherDeleted = publisherDeleted;
         }
 
         [HttpGet("{id}", Name = "GetById")]
@@ -43,8 +47,7 @@ namespace PrometheusGrafana.Controllers
             person.Timestamp = DateTime.UtcNow;
             var entity = await _personGateway.Insert(person);
 
-            _publishers.Single(x=>x.Type == typeof(PersonAdded))
-                .Publish(new PersonAdded(entity.Id));
+            _publisherAdded.Publish(new PersonAdded(entity.Id));
 
             return CreatedAtAction(nameof(GetById), new { id = entity.Id }, entity);
         }
@@ -55,8 +58,7 @@ namespace PrometheusGrafana.Controllers
             person.Timestamp = DateTime.UtcNow;
             await _personGateway.Save(person);
 
-            _publishers.Single(x=>x.Type == typeof(PersonModified))
-                .Publish(new PersonModified(person.Id));
+            _publisherModified.Publish(new PersonModified(person.Id));
                 
             return Ok();
         }
@@ -65,8 +67,7 @@ namespace PrometheusGrafana.Controllers
         public async Task<IActionResult> Delete(string id)
         {
             await _personGateway.Delete(id);
-            _publishers.Single(x=>x.Type == typeof(PersonDeleted))
-                .Publish(new PersonDeleted(id));
+            _publisherDeleted.Publish(new PersonDeleted(id));
 
             return Ok();
         }
