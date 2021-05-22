@@ -43,13 +43,13 @@ namespace PrometheusGrafana.Configuration
                     ), fromKey: Constants.RealActionGateway)
                 .SingleInstance();
 
-            RegisterPublisherDecorator<PersonAdded>(builder);
-            RegisterPublisherDecorator<PersonModified>(builder);
-            RegisterPublisherDecorator<PersonDeleted>(builder);
+            RegisterPublisherDecorator<PersonAddedMessage>(builder);
+            RegisterPublisherDecorator<PersonModifiedMessage>(builder);
+            RegisterPublisherDecorator<PersonDeletedMessage>(builder);
 
-            RegisterProcessorDecorator<PersonAdded>(builder);
-            RegisterProcessorDecorator<PersonModified>(builder);
-            RegisterProcessorDecorator<PersonDeleted>(builder);
+            RegisterProcessorDecorator<PersonAddedMessage>(builder);
+            RegisterProcessorDecorator<PersonModifiedMessage>(builder);
+            RegisterProcessorDecorator<PersonDeletedMessage>(builder);
         }
 
         private void RegisterPublisherDecorator<T>(ContainerBuilder builder)

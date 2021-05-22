@@ -2,12 +2,12 @@ using System;
 
 namespace PrometheusGrafana.RabbitMq.Models
 {
-    public class PersonModified : IMessage
+    public class PersonAddedMessage : IMessage
     {
         public string Id { get; set; }
         public DateTimeOffset TimeStamp { get; set; }
 
-        public PersonModified(string id)
+        public PersonAddedMessage(string id)
         {
             Id = id;
             TimeStamp = DateTime.UtcNow;

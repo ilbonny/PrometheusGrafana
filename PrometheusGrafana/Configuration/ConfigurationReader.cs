@@ -15,9 +15,10 @@ namespace PrometheusGrafana.Configuration
             return new RootConfiguration
             {
                 ServiceName = cfg["ServiceName"],
-                MongoConfigurationDb = ReadMongoConfigurationDb(cfg),
+                MongoConfiguration = ReadMongoConfigurationDb(cfg),
                 RabbitConfiguration = ReadRabbitMqConfiguration(cfg),
-                MetricsConfiguration = ReadMetricsConfiguration(cfg)
+                MetricsConfiguration = ReadMetricsConfiguration(cfg),
+                ApiConfiguration = ReadApiConfiguration(cfg)
             };
         }
 
@@ -88,6 +89,21 @@ namespace PrometheusGrafana.Configuration
                 SuppressDefaultMetrics = bool.Parse(metricsSection["SuppressDefaultMetrics"]),
                 Enabled = bool.Parse(metricsSection["Enabled"]),
                 Histograms = ReadHistogramConfigurations(metricsSection)
+            };
+        }
+
+        private static ApiConfiguration ReadApiConfiguration(IConfigurationRoot cfg)
+        {
+            var apiSection = cfg.GetSection("Api");
+            var personSection = apiSection.GetSection("Person");
+
+            return new ApiConfiguration
+            {
+                Url = apiSection["Url"],
+                AddPath = personSection["AddPath"],                
+                GetPath = personSection["GetPath"],
+                ModifyPath = personSection["ModifyPath"],
+                DeletePath = personSection["DeletePath"]
             };
         }
 

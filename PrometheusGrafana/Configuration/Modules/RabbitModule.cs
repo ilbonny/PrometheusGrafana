@@ -23,13 +23,13 @@ namespace PrometheusGrafana.Configuration
                 .SingleInstance()
                 .AsImplementedInterfaces();            
 
-            RegisterConsumerMessage<PersonAdded>(builder, _configuration.AddedConsumerConfiguration);
-            RegisterConsumerMessage<PersonModified>(builder, _configuration.ModifiedConsumerConfiguration);
-            RegisterConsumerMessage<PersonDeleted>(builder, _configuration.DeletedConsumerConfiguration);
+            RegisterConsumerMessage<PersonAddedMessage>(builder, _configuration.AddedConsumerConfiguration);
+            RegisterConsumerMessage<PersonModifiedMessage>(builder, _configuration.ModifiedConsumerConfiguration);
+            RegisterConsumerMessage<PersonDeletedMessage>(builder, _configuration.DeletedConsumerConfiguration);
 
-            RegisterPublisherMessage<PersonAdded>(builder, _configuration.AddedPublisherConfiguration);
-            RegisterPublisherMessage<PersonModified>(builder, _configuration.ModifiedPublisherConfiguration);
-            RegisterPublisherMessage<PersonDeleted>(builder, _configuration.DeletedPublisherConfiguration);
+            RegisterPublisherMessage<PersonAddedMessage>(builder, _configuration.AddedPublisherConfiguration);
+            RegisterPublisherMessage<PersonModifiedMessage>(builder, _configuration.ModifiedPublisherConfiguration);
+            RegisterPublisherMessage<PersonDeletedMessage>(builder, _configuration.DeletedPublisherConfiguration);
         }
 
         private void RegisterConsumerMessage<T>(ContainerBuilder builder, RabbitMqConsumerConfiguration configuration)

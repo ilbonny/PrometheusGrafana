@@ -7,7 +7,7 @@ namespace PrometheusGrafana.Configuration
         public static void Configure(ContainerBuilder builder, RootConfiguration configuration)
         {
             builder.RegisterModule(new RabbitModule(configuration.RabbitConfiguration));
-            builder.RegisterModule(new MongoModule(configuration.MongoConfigurationDb));       
+            builder.RegisterModule(new MongoModule(configuration.MongoConfiguration));       
             builder.RegisterModule(new MetricsModule(configuration.MetricsConfiguration));      
         }        
     }

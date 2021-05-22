@@ -13,14 +13,14 @@ namespace PrometheusGrafana.Controllers
     public class PersonsController : Controller
     {
         private readonly IPersonGateway _personGateway;
-        private readonly IPublisher<PersonAdded> _publisherAdded;
-        private readonly IPublisher<PersonModified> _publisherModified;
-        private readonly IPublisher<PersonDeleted> _publisherDeleted;
+        private readonly IPublisher<PersonAddedMessage> _publisherAdded;
+        private readonly IPublisher<PersonModifiedMessage> _publisherModified;
+        private readonly IPublisher<PersonDeletedMessage> _publisherDeleted;
 
         public PersonsController(IPersonGateway personGateway, 
-            IPublisher<PersonAdded> publisherAdded,
-            IPublisher<PersonModified> publisherModified,
-            IPublisher<PersonDeleted> publisherDeleted)
+            IPublisher<PersonAddedMessage> publisherAdded,
+            IPublisher<PersonModifiedMessage> publisherModified,
+            IPublisher<PersonDeletedMessage> publisherDeleted)
         {
             _personGateway = personGateway;
             _publisherAdded = publisherAdded;
@@ -47,7 +47,7 @@ namespace PrometheusGrafana.Controllers
             person.Timestamp = DateTime.UtcNow;
             var entity = await _personGateway.Insert(person);
 
-            _publisherAdded.Publish(new PersonAdded(entity.Id));
+            _publisherAdded.Publish(new PersonAddedMessage(entity.Id));
 
             return CreatedAtAction(nameof(GetById), new { id = entity.Id }, entity);
         }
@@ -58,7 +58,7 @@ namespace PrometheusGrafana.Controllers
             person.Timestamp = DateTime.UtcNow;
             await _personGateway.Save(person);
 
-            _publisherModified.Publish(new PersonModified(person.Id));
+            _publisherModified.Publish(new PersonModifiedMessage(person.Id));
                 
             return Ok();
         }
@@ -67,7 +67,7 @@ namespace PrometheusGrafana.Controllers
         public async Task<IActionResult> Delete(string id)
         {
             await _personGateway.Delete(id);
-            _publisherDeleted.Publish(new PersonDeleted(id));
+            _publisherDeleted.Publish(new PersonDeletedMessage(id));
 
             return Ok();
         }

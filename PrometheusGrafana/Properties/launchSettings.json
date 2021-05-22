@@ -25,7 +25,8 @@
           "MongoDb__ConnectionString": "mongodb://localhost:27017/PrometheusDb",
           "RabbitMq__Uri": "amqp://localhost:5672/Prometheus",
           "RabbitMq__Username": "guest",
-          "RabbitMq__Password": "guest"
+          "RabbitMq__Password": "guest",
+          "Api_Url" : "https://localhost:8001"
         },
         "applicationUrl": "https://localhost:8001/"
       }
