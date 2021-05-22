@@ -1,15 +1,15 @@
 namespace PrometheusGrafana.RabbitMq
 {
-    public interface IPublisherMessage<T>
+    public interface IPublisher<T>
     {
         void Publish(T message);
     }
     
-    public class PublisherMessage<T> : IPublisherMessage<T>
+    public class Publisher<T> : IPublisher<T>
     {
         private readonly IRabbitMqPublisher _publisher;
 
-        public PublisherMessage(IRabbitMqPublisher publisher)
+        public Publisher(IRabbitMqPublisher publisher)
         {
             _publisher = publisher;
         }

@@ -4,12 +4,12 @@ using PrometheusGrafana.RabbitMq;
 
 namespace PrometheusGrafana.Configuration
 {
-    public class MessagePublisherMetricsDecorator<T> : IPublisherMessage<T>
+    public class PublisherMetricsDecorator<T> : IPublisher<T>
     {
-        private readonly IPublisherMessage<T> _decoratee;
+        private readonly IPublisher<T> _decoratee;
         private readonly Counter _counter;
 
-        public MessagePublisherMetricsDecorator(IPublisherMessage<T> decoratee, string messageMetricsName)
+        public PublisherMetricsDecorator(IPublisher<T> decoratee, string messageMetricsName)
         {
             _decoratee = decoratee;
             _counter = MetricsHelper.CreateCounter(new[] { "type" }, messageMetricsName, "total", "publish");

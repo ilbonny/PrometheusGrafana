@@ -4,10 +4,10 @@ namespace PrometheusGrafana.RabbitMq
 {
     public class RabbitMqConsumer<T> : RabbitConsumerBase
     {
-        private readonly IProcessorMessage<T> _processor;
+        private readonly IProcessor<T> _processor;
 
         public RabbitMqConsumer(RabbitMqConsumerConfiguration configuration,
-                        IProcessorMessage<T> processor) : base(configuration)
+                        IProcessor<T> processor) : base(configuration)
         {
             _processor = processor;
         }

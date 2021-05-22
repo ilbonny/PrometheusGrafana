@@ -6,16 +6,16 @@ using PrometheusGrafana.RabbitMq.Models;
 
 namespace PrometheusGrafana.RabbitMq
 {
-    public interface IProcessorMessage<T>
+    public interface IProcessor<T>
     {
         Task Process(byte[] body);
     }
     
-    public class ProcessorMessage<T> : IProcessorMessage<T> 
+    public class Processor<T> : IProcessor<T> 
     {
         private readonly IActionGateway _actionGateway;
 
-        public ProcessorMessage(IActionGateway actionGateway)
+        public Processor(IActionGateway actionGateway)
         {
              _actionGateway = actionGateway;
         }

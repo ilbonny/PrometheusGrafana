@@ -26,12 +26,12 @@ namespace PrometheusGrafana.Configuration
              builder
                 .RegisterType<PersonGateway>() 
                 .SingleInstance()
-                .Named<IPersonGateway>("RealPersonGateway");
+                .Named<IPersonGateway>(Constants.RealPersonGateway);
 
             builder
                 .RegisterType<ActionGateway>() 
                 .SingleInstance()
-                .Named<IActionGateway>("RealActionGateway");
+                .Named<IActionGateway>(Constants.RealActionGateway);
         }
     }
 }

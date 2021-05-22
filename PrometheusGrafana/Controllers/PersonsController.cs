@@ -13,14 +13,14 @@ namespace PrometheusGrafana.Controllers
     public class PersonsController : Controller
     {
         private readonly IPersonGateway _personGateway;
-        private readonly IPublisherMessage<PersonAdded> _publisherAdded;
-        private readonly IPublisherMessage<PersonModified> _publisherModified;
-        private readonly IPublisherMessage<PersonDeleted> _publisherDeleted;
+        private readonly IPublisher<PersonAdded> _publisherAdded;
+        private readonly IPublisher<PersonModified> _publisherModified;
+        private readonly IPublisher<PersonDeleted> _publisherDeleted;
 
         public PersonsController(IPersonGateway personGateway, 
-            IPublisherMessage<PersonAdded> publisherAdded,
-            IPublisherMessage<PersonModified> publisherModified,
-            IPublisherMessage<PersonDeleted> publisherDeleted)
+            IPublisher<PersonAdded> publisherAdded,
+            IPublisher<PersonModified> publisherModified,
+            IPublisher<PersonDeleted> publisherDeleted)
         {
             _personGateway = personGateway;
             _publisherAdded = publisherAdded;

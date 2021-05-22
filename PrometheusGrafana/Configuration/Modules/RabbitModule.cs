@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Autofac;
 using PrometheusGrafana.RabbitMq;
 using PrometheusGrafana.RabbitMq.Models;
@@ -33,15 +34,13 @@ namespace PrometheusGrafana.Configuration
 
         private void RegisterConsumerMessage<T>(ContainerBuilder builder, RabbitMqConsumerConfiguration configuration)
         {
-            var rabbitMqConsumerName = $"{typeof(T).Name}_consumer";
-            builder.RegisterType<ProcessorMessage<T>>()
-              .Named<IProcessorMessage<T>>(rabbitMqConsumerName)     
-              .As<IProcessorMessage<T>>()       
-              .SingleInstance();
+            builder.RegisterType<Processor<T>>()
+              .Named<IProcessor<T>>(Constants.RealProcessor)     
+              .SingleInstance();            
 
            builder.Register(ctx => new RabbitMqConsumer<T>(
                 configuration,
-                ctx.ResolveNamed<IProcessorMessage<T>>(rabbitMqConsumerName)))
+                ctx.ResolveNamed<IProcessor<T>>(Constants.RealProcessor)))
               .AsImplementedInterfaces()   
               .SingleInstance();   
         }
@@ -57,10 +56,12 @@ namespace PrometheusGrafana.Configuration
                 .AsImplementedInterfaces()
                 .SingleInstance();
 
-            builder.Register(ctx => new PublisherMessage<T>(
+            builder.Register(ctx => new Publisher<T>(
                 ctx.ResolveNamed<IRabbitMqPublisher>(rabbitMqPublisherName)))
-              .Named<IPublisherMessage<T>>("realPublisher")
+              .Named<IPublisher<T>>(Constants.RealPublisher)
               .SingleInstance();
         }
     }
+
+    
 }

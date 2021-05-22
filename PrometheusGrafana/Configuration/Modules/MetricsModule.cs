@@ -1,8 +1,10 @@
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Autofac;
+using Prometheus;
 using PrometheusGrafana.Metrics;
 using PrometheusGrafana.MongoDb.Gateways;
 using PrometheusGrafana.RabbitMq;
@@ -28,17 +30,17 @@ namespace PrometheusGrafana.Configuration
 
             builder.RegisterDecorator<IPersonGateway>(
                     (ctx, inner) => new PersonGatewayMetricsDecorator(
-                        GetBuckets("personGateway"),
+                        GetBuckets(Constants.RealPersonGateway),
                         inner)
-                   , fromKey: "RealPersonGateway")
+                   , fromKey: Constants.RealPersonGateway)
 
                 .SingleInstance();
 
             builder.RegisterDecorator<IActionGateway>(
                     (ctx, inner) => new ActionGatewayMetricsDecorator(
-                        GetBuckets("actionGateway"),
+                        GetBuckets(Constants.RealActionGateway),
                         inner
-                    ), fromKey: "RealActionGateway")
+                    ), fromKey: Constants.RealActionGateway)
                 .SingleInstance();
 
             RegisterPublisherDecorator<PersonAdded>(builder);
@@ -48,26 +50,23 @@ namespace PrometheusGrafana.Configuration
             RegisterProcessorDecorator<PersonAdded>(builder);
             RegisterProcessorDecorator<PersonModified>(builder);
             RegisterProcessorDecorator<PersonDeleted>(builder);
-
         }
 
         private void RegisterPublisherDecorator<T>(ContainerBuilder builder)
         {
-            builder.RegisterDecorator<IPublisherMessage<T>>(
-               (ctx, inner) => new MessagePublisherMetricsDecorator<T>(
-                       inner, "rabbit"
-                     ), fromKey: "realPublisher")
+            builder.RegisterDecorator<IPublisher<T>>(
+               (ctx, inner) => new PublisherMetricsDecorator<T>(
+                       inner, Constants.RabbiMqMetricName
+                     ), fromKey: Constants.RealPublisher)
                  .SingleInstance();
         }
 
         private void RegisterProcessorDecorator<T>(ContainerBuilder builder)
         {
-            builder.RegisterDecorator<IProcessorMessage<T>>(
-                    (ctx, inner) => new MessageProcessorMetricsDecorator<T>(
-                        inner,
-                        "processor",
-                        GetBuckets("rabbit_processor")
-                    ), fromKey: "realProcessor");
+            builder.RegisterDecorator<IProcessor<T>>(
+                    (ctx, parameters, inner) => new ProcessorMetricsDecorator<T>(
+                        inner, GetMessageMetricName<T>(), GetBuckets("processor"))
+            );
         }
 
         private static string GetMessageMetricName<TMessage>() =>

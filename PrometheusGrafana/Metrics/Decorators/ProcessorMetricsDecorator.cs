@@ -8,20 +8,20 @@ using PrometheusGrafana.RabbitMq;
 
 namespace PrometheusGrafana.Configuration
 {
-    public class MessageProcessorMetricsDecorator<T> : IProcessorMessage<T>
+    public class ProcessorMetricsDecorator<T> : IProcessor<T>
     {
+        private readonly IProcessor<T> _decoratee;
         private Histogram _durationHistogram;
         private Counter _counter;
-        private IProcessorMessage<T> _decoratee;
 
-        public MessageProcessorMetricsDecorator(IProcessorMessage<T> decoratee, string messageMetricName, double[] durationHistogramBuckets)
+        public ProcessorMetricsDecorator(IProcessor<T> decoratee, string messageMetricName, double[] durationHistogramBuckets)
         {
             _decoratee = decoratee;
             _durationHistogram = MetricsHelper.CreateHistogram(durationHistogramBuckets, GetHistogramLabelNames().ToArray(), messageMetricName,
                 "duration_seconds", "process");
 
-            _counter  = MetricsHelper.CreateCounter(GetCounterLabelNames().ToArray(), messageMetricName,
-                "total", "process");            
+            _counter = MetricsHelper.CreateCounter(GetCounterLabelNames().ToArray(), messageMetricName,
+                "total", "process");
         }
 
         public async Task Process(byte[] body)
@@ -39,7 +39,7 @@ namespace PrometheusGrafana.Configuration
                     throw;
                 }
             }
-        }        
+        }
 
         private IEnumerable<string> GetHistogramLabelNames()
         {
@@ -63,6 +63,5 @@ namespace PrometheusGrafana.Configuration
         {
             yield return success ? "success" : "failure";
         }
-
     }
 }
