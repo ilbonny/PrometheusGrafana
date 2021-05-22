@@ -33,15 +33,17 @@ namespace PrometheusGrafana.Configuration
 
         private void RegisterConsumerMessage<T>(ContainerBuilder builder, RabbitMqConsumerConfiguration configuration)
         {
+            var rabbitMqConsumerName = $"{typeof(T).Name}_consumer";
             builder.RegisterType<ProcessorMessage<T>>()
-              .Named<IProcessorMessage<T>>("realProcessor")              
+              .Named<IProcessorMessage<T>>(rabbitMqConsumerName)     
+              .As<IProcessorMessage<T>>()       
               .SingleInstance();
 
-            builder.Register(ctx => new ConsumerMessage<T>(
+           builder.Register(ctx => new RabbitMqConsumer<T>(
                 configuration,
-                ctx.ResolveNamed<IProcessorMessage<T>>("realProcessor")))
+                ctx.ResolveNamed<IProcessorMessage<T>>(rabbitMqConsumerName)))
               .AsImplementedInterfaces()   
-              .SingleInstance();
+              .SingleInstance();   
         }
 
         private void RegisterPublisherMessage<T>(ContainerBuilder builder, RabbitMqPublisherConfiguration configuration)

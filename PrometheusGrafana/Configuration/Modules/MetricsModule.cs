@@ -48,9 +48,11 @@ namespace PrometheusGrafana.Configuration
             RegisterProcessorDecorator<PersonAdded>(builder);
             RegisterProcessorDecorator<PersonModified>(builder);
             RegisterProcessorDecorator<PersonDeleted>(builder);
+
         }
 
-        private void RegisterPublisherDecorator<T>(ContainerBuilder builder){
+        private void RegisterPublisherDecorator<T>(ContainerBuilder builder)
+        {
             builder.RegisterDecorator<IPublisherMessage<T>>(
                (ctx, inner) => new MessagePublisherMetricsDecorator<T>(
                        inner, "rabbit"
@@ -58,15 +60,14 @@ namespace PrometheusGrafana.Configuration
                  .SingleInstance();
         }
 
-        private void RegisterProcessorDecorator<T>(ContainerBuilder builder){
-
+        private void RegisterProcessorDecorator<T>(ContainerBuilder builder)
+        {
             builder.RegisterDecorator<IProcessorMessage<T>>(
                     (ctx, inner) => new MessageProcessorMetricsDecorator<T>(
                         inner,
                         "processor",
                         GetBuckets("rabbit_processor")
-                    ), fromKey: "realProcessor")
-                .SingleInstance();
+                    ), fromKey: "realProcessor");
         }
 
         private static string GetMessageMetricName<TMessage>() =>

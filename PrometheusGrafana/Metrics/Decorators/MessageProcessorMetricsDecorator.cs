@@ -62,6 +62,7 @@ namespace PrometheusGrafana.Configuration
         private IEnumerable<string> GetCounterLabelValues(bool success)
         {
             yield return success ? "success" : "failure";
-        }        
+        }
+
     }
 }
