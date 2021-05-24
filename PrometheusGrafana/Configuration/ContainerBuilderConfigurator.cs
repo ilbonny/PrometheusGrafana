@@ -9,6 +9,7 @@ namespace PrometheusGrafana.Configuration
             builder.RegisterModule(new RabbitModule(configuration.RabbitConfiguration));
             builder.RegisterModule(new MongoModule(configuration.MongoConfiguration));       
             builder.RegisterModule(new MetricsModule(configuration.MetricsConfiguration));      
+            builder.RegisterModule(new FlowModule(configuration.JobConfiguration, configuration.ApiConfiguration));   
         }        
     }
 }

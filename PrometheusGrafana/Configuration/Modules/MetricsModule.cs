@@ -1,10 +1,7 @@
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Autofac;
-using Prometheus;
 using PrometheusGrafana.Metrics;
 using PrometheusGrafana.MongoDb.Gateways;
 using PrometheusGrafana.RabbitMq;
@@ -33,7 +30,6 @@ namespace PrometheusGrafana.Configuration
                         GetBuckets(Constants.RealPersonGateway),
                         inner)
                    , fromKey: Constants.RealPersonGateway)
-
                 .SingleInstance();
 
             builder.RegisterDecorator<IActionGateway>(

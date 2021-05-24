@@ -18,7 +18,8 @@ namespace PrometheusGrafana.Configuration
                 MongoConfiguration = ReadMongoConfigurationDb(cfg),
                 RabbitConfiguration = ReadRabbitMqConfiguration(cfg),
                 MetricsConfiguration = ReadMetricsConfiguration(cfg),
-                ApiConfiguration = ReadApiConfiguration(cfg)
+                ApiConfiguration = ReadApiConfiguration(cfg),
+                JobConfiguration = ReadJobConfigutation(cfg)
             };
         }
 
@@ -100,7 +101,7 @@ namespace PrometheusGrafana.Configuration
             return new ApiConfiguration
             {
                 Url = apiSection["Url"],
-                AddPath = personSection["AddPath"],                
+                AddPath = personSection["AddPath"],
                 GetPath = personSection["GetPath"],
                 ModifyPath = personSection["ModifyPath"],
                 DeletePath = personSection["DeletePath"]
@@ -111,10 +112,20 @@ namespace PrometheusGrafana.Configuration
         {
             return cfg.GetSection("Histograms").GetChildren()
                 .Select(c => new HistogramConfiguration
-            {
-                Id = c["Id"],
-                Buckets = BucketsParser.Parse(c["Buckets"])
-            });
+                {
+                    Id = c["Id"],
+                    Buckets = BucketsParser.Parse(c["Buckets"])
+                });
         }
-    }
+
+        private static JobConfiguration ReadJobConfigutation(IConfigurationRoot cfg)
+        {
+            var jobSection = cfg.GetSection("Job");
+
+            return new JobConfiguration
+            {
+                Interval = TimeSpan.FromSeconds(int.Parse(jobSection["Interval"]))
+            };
+        }
+    }    
 }

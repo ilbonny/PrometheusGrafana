@@ -7,5 +7,6 @@ namespace PrometheusGrafana.Configuration
         public RabbitConfiguration RabbitConfiguration { get; set; }
         public MetricsConfiguration MetricsConfiguration { get; set; }
         public ApiConfiguration ApiConfiguration { get; set; }
+        public JobConfiguration JobConfiguration { get; internal set; }
     }
 }

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using PrometheusGrafana.Metrics;
 using PrometheusGrafana.RabbitMq;
+using PrometheusGrafana.Jobs;
 
 namespace PrometheusGrafana
 {
@@ -12,12 +13,14 @@ namespace PrometheusGrafana
     {
         private readonly MetricsService _metricsService;
         private readonly IMessageBus _messageBus;
+        private readonly IJobService _jobService;
 
         public RootService(MetricsService metricsService, 
-            IMessageBus messageBus)
+            IMessageBus messageBus, IJobService jobService)
         {
             _metricsService = metricsService;
             _messageBus = messageBus;
+            _jobService = jobService;
         }
 
         public Task StartAsync(CancellationToken cancellationToken)
@@ -26,6 +29,7 @@ namespace PrometheusGrafana
     
             _messageBus.Start();
             _metricsService.Start();
+            _jobService.Start();
 
             Console.WriteLine("started...");
 
@@ -38,7 +42,8 @@ namespace PrometheusGrafana
             
             _messageBus.Stop();
             _metricsService.Stop();
-    
+            _jobService.Stop();
+
             Console.WriteLine("stopped...");
 
             return Task.CompletedTask;
