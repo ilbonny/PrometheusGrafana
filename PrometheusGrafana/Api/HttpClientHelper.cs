@@ -38,7 +38,7 @@ namespace PrometheusGrafana.Api
 
             HttpContent httpContent = new StringContent(payloadSerialized, Encoding.UTF8, "application/json");
 
-            using var httpClient = new HttpClient();
+            var httpClient = new HttpClient();
             var responseMessage = await httpClient.PostAsync(url, httpContent);
 
             if (!acceptedStatusCodes.Contains(responseMessage.StatusCode))
