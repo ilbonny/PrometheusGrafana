@@ -18,11 +18,19 @@ namespace PrometheusGrafana.Api
 
     public class HttpClientHelper : IHttpClientHelper
     {
+        HttpClientHandler _clientHandler;
+
+        public HttpClientHelper()
+        {
+            _clientHandler = new HttpClientHandler();
+            _clientHandler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => { return true; };            
+        }
+
         public async Task<T> Get<T>(string url)
         {
             var requestUri = new Uri(url);
 
-            using var httpClient = new HttpClient();
+            using var httpClient = new HttpClient(_clientHandler);
             using var responseMessage = await httpClient.GetAsync(requestUri);
 
             if (responseMessage.StatusCode != HttpStatusCode.OK)
@@ -33,12 +41,12 @@ namespace PrometheusGrafana.Api
         }
 
         public async Task<TOut> Post<TIn, TOut>(string url, TIn payload, params HttpStatusCode[] acceptedStatusCodes)
-        {
+        {         
             var payloadSerialized = JsonConvert.SerializeObject(payload);
 
             HttpContent httpContent = new StringContent(payloadSerialized, Encoding.UTF8, "application/json");
 
-            var httpClient = new HttpClient();
+            using var httpClient = new HttpClient(_clientHandler);
             var responseMessage = await httpClient.PostAsync(url, httpContent);
 
             if (!acceptedStatusCodes.Contains(responseMessage.StatusCode))
@@ -54,7 +62,7 @@ namespace PrometheusGrafana.Api
 
             HttpContent httpContent = new StringContent(payloadSerialized, Encoding.UTF8, "application/json");
 
-            using var httpClient = new HttpClient();
+            using var httpClient = new HttpClient(_clientHandler);
             var responseMessage = await httpClient.PutAsync(url, httpContent);
 
             if (!acceptedStatusCodes.Contains(responseMessage.StatusCode))
@@ -67,7 +75,7 @@ namespace PrometheusGrafana.Api
         {
             var requestUri = new Uri(url);
 
-            using var httpClient = new HttpClient();
+            using var httpClient = new HttpClient(_clientHandler);
             using var responseMessage = await httpClient.DeleteAsync(requestUri);
 
             if (responseMessage.StatusCode != HttpStatusCode.NoContent)
