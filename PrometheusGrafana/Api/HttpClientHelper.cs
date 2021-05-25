@@ -30,7 +30,7 @@ namespace PrometheusGrafana.Api
         {
             var requestUri = new Uri(url);
 
-            using var httpClient = new HttpClient(_clientHandler);
+            var httpClient = new HttpClient(_clientHandler);
             using var responseMessage = await httpClient.GetAsync(requestUri);
 
             if (responseMessage.StatusCode != HttpStatusCode.OK)
@@ -46,7 +46,7 @@ namespace PrometheusGrafana.Api
 
             HttpContent httpContent = new StringContent(payloadSerialized, Encoding.UTF8, "application/json");
 
-            using var httpClient = new HttpClient(_clientHandler);
+            var httpClient = new HttpClient(_clientHandler);
             var responseMessage = await httpClient.PostAsync(url, httpContent);
 
             if (!acceptedStatusCodes.Contains(responseMessage.StatusCode))
@@ -62,7 +62,7 @@ namespace PrometheusGrafana.Api
 
             HttpContent httpContent = new StringContent(payloadSerialized, Encoding.UTF8, "application/json");
 
-            using var httpClient = new HttpClient(_clientHandler);
+            var httpClient = new HttpClient(_clientHandler);
             var responseMessage = await httpClient.PutAsync(url, httpContent);
 
             if (!acceptedStatusCodes.Contains(responseMessage.StatusCode))
@@ -75,8 +75,8 @@ namespace PrometheusGrafana.Api
         {
             var requestUri = new Uri(url);
 
-            using var httpClient = new HttpClient(_clientHandler);
-            using var responseMessage = await httpClient.DeleteAsync(requestUri);
+            var httpClient = new HttpClient(_clientHandler);
+            var responseMessage = await httpClient.DeleteAsync(requestUri);
 
             if (responseMessage.StatusCode != HttpStatusCode.NoContent)
                 throw new WrongStatusCodeException(responseMessage);

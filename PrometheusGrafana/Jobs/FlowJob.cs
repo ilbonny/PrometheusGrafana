@@ -35,22 +35,19 @@ namespace PrometheusGrafana.Jobs
         {
             var newPerson = await _gateway.Post(new Person
             {
-                Name = "Name",
-                Surname = "Surname",
+                Name = $"Name {Guid.NewGuid().ToString()}",
+                Surname = $"Surname {Guid.NewGuid().ToString()}",
                 Age = 20
             });
 
             var getPerson = await _gateway.Get(newPerson.Id);
-
-            getPerson.Name = getPerson.Name + Guid.NewGuid().ToString();
-            getPerson.Surname = getPerson.Surname + Guid.NewGuid().ToString();
             getPerson.Age++;
 
             await _gateway.Put(getPerson);
 
             await Task.Delay(1000);
 
-            await _gateway.Delete(getPerson.Id);
+            //await _gateway.Delete(getPerson.Id);
         }
     }
 }

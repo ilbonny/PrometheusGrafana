@@ -12,3 +12,8 @@ Username : admin
 # Prometheus
 
 Url: http://localhost:9090
+
+# Ports
+
+sudo lsof -iTCP -sTCP:LISTEN -n -P
+sudo kill -9 <PID>
