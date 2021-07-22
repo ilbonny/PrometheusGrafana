@@ -22,4 +22,4 @@ jobs:
     - name: Build
       run: dotnet build PrometheusGrafana/PrometheusGrafana.csproj --no-restore
     - name: Test
-      run: dotnet test --no-build --verbosity normal
+      run: dotnet test PrometheusGrafana.Tests/PrometheusGrafana.Tests.csproj --no-build --verbosity normal
