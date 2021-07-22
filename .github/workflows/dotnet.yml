@@ -1,0 +1,25 @@
+name: .NET
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.x
+    - name: Restore dependencies
+      run: dotnet restore PrometheusGrafana/PrometheusGrafana.csproj
+    - name: Build
+      run: dotnet build PrometheusGrafana/PrometheusGrafana.csproj --no-restore
+    - name: Test
+      run: dotnet test PrometheusGrafana.Tests/PrometheusGrafana.Tests.csproj --no-build --verbosity normal
