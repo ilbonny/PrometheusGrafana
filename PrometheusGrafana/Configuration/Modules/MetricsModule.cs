@@ -61,7 +61,7 @@ namespace PrometheusGrafana.Configuration
         {
             builder.RegisterDecorator<IProcessor<T>>(
                     (ctx, parameters, inner) => new ProcessorMetricsDecorator<T>(
-                        inner, GetMessageMetricName<T>(), GetBuckets("processor"))
+                        inner, Constants.RabbiMqMetricName, GetBuckets("processor"))
             );
         }
 

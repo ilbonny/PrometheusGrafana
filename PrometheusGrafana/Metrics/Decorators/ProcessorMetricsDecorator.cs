@@ -43,7 +43,7 @@ namespace PrometheusGrafana.Configuration
 
         private IEnumerable<string> GetHistogramLabelNames()
         {
-            yield return typeof(T).Name;
+            yield return "type";
         }
 
         private IEnumerable<string> GetCounterLabelNames()

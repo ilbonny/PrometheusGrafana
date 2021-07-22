@@ -3,6 +3,8 @@ using PrometheusGrafana.Configuration;
 using System.Threading.Tasks;
 using System;
 using PrometheusGrafana.Models;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace PrometheusGrafana.Jobs
 {
@@ -28,10 +30,32 @@ namespace PrometheusGrafana.Jobs
 
         public void Execute()
         {
-            Task.Run(()=>InternalExecute());
+            Task.Run(() => InternalExecute());
         }
 
         private async Task InternalExecute()
+        {
+            var countCalls = 100;
+            var persons = new List<Person>();
+
+            for(var count=0; count<countCalls; count++ ){
+                persons.Add(await ExecutePost());
+            }
+
+            foreach(var person in persons.Take(countCalls/2)){
+                await _gateway.Get(person.Id);
+            }
+
+            foreach(var person in persons.Take(countCalls/3)){
+                await ExecutePut(person);
+            }
+
+            foreach(var person in persons){
+                await _gateway.Delete(person.Id);
+            }            
+        }
+
+        private async Task<Person> ExecutePost()
         {
             var newPerson = await _gateway.Post(new Person
             {
@@ -40,14 +64,13 @@ namespace PrometheusGrafana.Jobs
                 Age = 20
             });
 
-            var getPerson = await _gateway.Get(newPerson.Id);
-            getPerson.Age++;
+            return newPerson;
+        }
 
-            await _gateway.Put(getPerson);
-
-            await Task.Delay(1000);
-
-            //await _gateway.Delete(getPerson.Id);
+        private Task<bool> ExecutePut(Person person)
+        {
+            person.Age++;
+            return _gateway.Put(person);
         }
     }
 }

@@ -69,7 +69,7 @@ namespace PrometheusGrafana.Controllers
             await _personGateway.Delete(id);
             _publisherDeleted.Publish(new PersonDeletedMessage(id));
 
-            return Ok();
+            return NoContent();
         }
     }
 }
